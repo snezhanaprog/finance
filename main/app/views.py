@@ -16,9 +16,11 @@ class RegisterView(APIView):
         email = request.data.get('email')
 
         if not username or not password or not email:
+            print("0")
             return Response({'error': 'Все поля обязательны для заполнения'}, status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(username=username).exists():
+            print("1")
             return Response({'error': 'Пользователь с таким именем уже существует'}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.create_user(username=username, password=password, email=email)
@@ -41,6 +43,12 @@ class LoginView(APIView):
 
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
+    
+class UserList(APIView):
+    def get(self, *args):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
 
 class BudgetList(APIView):
